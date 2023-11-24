@@ -32,6 +32,9 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	// P6Spy
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.6'
+
+	// kafka
+	implementation 'org.springframework.kafka:spring-kafka'
 }
 
 tasks.named('bootBuildImage') {
