@@ -2,6 +2,7 @@ package stock.caching.price.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import stock.caching.global.dto.CachePriorityDto;
 import stock.caching.global.service.CacheCompleteService;
 import stock.caching.global.service.CacheLockService;
 import stock.caching.global.service.CachePriorityService;
@@ -19,18 +20,24 @@ public class CacheStockPriceService {
     private final CacheLockService cacheLockService;
     private final CacheStockPriceRepository cacheStockPriceRepository;
 
+    private int maxPriority = 5;
+
 
     public void saveStockPriceListDto(String key) {
         lockedCheck(key);
         cachedCheck(key);
-        if (cachePriorityService.isNeedCache(key)) {
+        CachePriorityDto cachePriorityDto = CachePriorityDto.builder()
+            .key(key)
+            .priority(maxPriority)
+            .build();
+        if (cachePriorityService.isNeedCache(cachePriorityDto)) {
             cacheLockService.lock(key, 10);
             cacheStockPriceRepository.save(stockPriceService.getStockPriceListDto(key));
             cacheCompleteService.cacheComplete(key);
             cacheLockService.unlock(key);
             return;
         }
-        cachePriorityService.updatePriority(key);
+        cachePriorityService.updatePriority(cachePriorityDto);
     }
 
     private void lockedCheck(String key) {
@@ -52,4 +59,7 @@ public class CacheStockPriceService {
         cacheCompleteService.deleteComplete(key);
     }
 
+    public void changePriority(int priority) {
+        this.maxPriority = priority;
+    }
 }

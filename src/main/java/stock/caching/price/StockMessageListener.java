@@ -22,4 +22,10 @@ public class StockMessageListener {
             log.info("CacheLogicInProgressException: {}", e.getMessage());
         }
     }
+
+    @KafkaListener(topics = "stock-cache-priority")
+    public void changePriority(String priority) {
+        log.info("changePriority: {}", priority);
+        cacheStockPriceService.changePriority(Integer.parseInt(priority));
+    }
 }
