@@ -14,8 +14,9 @@ public class StockMessageListener {
 
     private final CacheStockPriceService cacheStockPriceService;
 
-    @KafkaListener(topics = "stock")
-    public void listenStockCache(String code) {
+    @KafkaListener(topics = "stock", groupId = "caching")
+    public void listenStockCache(String text) {
+        String code = text.split(",")[0];
         try {
             cacheStockPriceService.saveStockPriceListDto(code);
         } catch (CacheLogicInProgressException e) {
@@ -23,7 +24,7 @@ public class StockMessageListener {
         }
     }
 
-    @KafkaListener(topics = "stock-cache-priority")
+    @KafkaListener(topics = "stock-cache-priority", groupId = "caching")
     public void changePriority(String priority) {
         log.info("changePriority: {}", priority);
         cacheStockPriceService.changePriority(Integer.parseInt(priority));
